@@ -1,14 +1,14 @@
-package org.example.currencyexchangeproject.Model;
+package org.example.currencyexchangeproject.Entity;
 
 import java.util.Objects;
 
-public class Currency {
+public class CurrencyEntity {
     Integer id;
     String code;
     String FullName;
     String Sign;
 
-    private Currency() {}
+    private CurrencyEntity() {}
 
     public static CurrencyBuilderImpl builder() {
         return new CurrencyBuilderImpl();
@@ -19,7 +19,7 @@ public class Currency {
         CurrencyBuilder withCode(String code);
         CurrencyBuilder withFullName(String fullName);
         CurrencyBuilder withSign(String sign);
-        Currency build();
+        CurrencyEntity build();
     }
 
     @Override
@@ -35,8 +35,8 @@ public class Currency {
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
-        Currency currency = (Currency) o;
-        return Objects.equals(id, currency.id);
+        CurrencyEntity currencyEntity = (CurrencyEntity) o;
+        return Objects.equals(id, currencyEntity.id);
     }
 
     @Override
@@ -77,35 +77,35 @@ public class Currency {
     }
 
     public static class CurrencyBuilderImpl implements CurrencyBuilder{
-        private final Currency currency = new Currency();
+        private final CurrencyEntity currencyEntity = new CurrencyEntity();
 
         @Override
         public CurrencyBuilder withId(Integer id) {
-            currency.id = id;
+            currencyEntity.id = id;
             return this;
         }
 
         @Override
         public CurrencyBuilder withCode(String code) {
-            currency.code = code;
+            currencyEntity.code = code;
             return this;
         }
 
         @Override
         public CurrencyBuilder withFullName(String fullName) {
-            currency.FullName = fullName;
+            currencyEntity.FullName = fullName;
             return this;
         }
 
         @Override
         public CurrencyBuilder withSign(String sign) {
-            currency.Sign = sign;
+            currencyEntity.Sign = sign;
             return this;
         }
 
         @Override
-        public Currency build() {
-            return currency;
+        public CurrencyEntity build() {
+            return currencyEntity;
         }
     }
 }
