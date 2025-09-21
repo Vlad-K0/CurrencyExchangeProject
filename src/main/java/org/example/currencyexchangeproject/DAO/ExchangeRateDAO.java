@@ -33,18 +33,21 @@ public class ExchangeRateDAO {
                 WHERE exchangerates.id = ?;
             """;
     private static final String CREATE_EXCHANGE_RATE_SQL = """
-                INSERT INTO ExchangeRates (BaseCurrencyID, TargetCurrencyID, Rate)\s
-                VALUES (?, ?, ?)
-           \s""";
+                 INSERT INTO ExchangeRates (BaseCurrencyID, TargetCurrencyID, Rate)\s
+                 VALUES (?, ?, ?)
+            \s""";
     private static final String UPDATE_EXCHANGE_RATE_SQL = """
-                        UPDATE ExchangeRates
-                        SET basecurrencyid = ?, targetcurrencyid = ?, rate = ?\s
-                        WHERE id = ?;
-           \s""";
+                         UPDATE ExchangeRates
+                         SET basecurrencyid = ?, targetcurrencyid = ?, rate = ?\s
+                         WHERE id = ?;
+            \s""";
 
     public boolean createExchangeRate(ExchangeRateEntity exchangeRateEntity) {
         try (Connection connection = ConnectionPool.getConnection();
              PreparedStatement statement = connection.prepareStatement(CREATE_EXCHANGE_RATE_SQL)) {
+            statement.setInt(1, exchangeRateEntity.getBaseCurrencyEntity().getId());
+            statement.setInt(2, exchangeRateEntity.getTargetCurrencyEntity().getId());
+            statement.setBigDecimal(3, exchangeRateEntity.getRate());
             return statement.executeUpdate() == 1;
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -53,7 +56,7 @@ public class ExchangeRateDAO {
 
     public boolean updateExchangeRate(ExchangeRateEntity exchangeRateEntity) {
         try (Connection connection = ConnectionPool.getConnection();
-            PreparedStatement statement = connection.prepareStatement(UPDATE_EXCHANGE_RATE_SQL))   {
+             PreparedStatement statement = connection.prepareStatement(UPDATE_EXCHANGE_RATE_SQL)) {
             statement.setInt(1, exchangeRateEntity.getBaseCurrencyEntity().getId());
             statement.setInt(2, exchangeRateEntity.getTargetCurrencyEntity().getId());
             statement.setBigDecimal(3, exchangeRateEntity.getRate());
@@ -91,7 +94,7 @@ public class ExchangeRateDAO {
         parameters.add(filter.getOffset());
 
         try (Connection connection = ConnectionPool.getConnection();
-            PreparedStatement statement  = connection.prepareStatement(sql)) {
+             PreparedStatement statement = connection.prepareStatement(sql)) {
             for (int i = 0; i < parameters.size(); i++) {
                 statement.setObject(i + 1, parameters.get(i));
             }

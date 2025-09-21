@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 public class CurrencyDAO {
     private static final String FIND_ALL_SQL = """
-            SELECT 
+            SELECT
                 id,
                 code,
                 fullname,
@@ -27,12 +27,17 @@ public class CurrencyDAO {
                     INSERT INTO currencies (code, fullname, sign) VALUES (?, ?, ?)
             """;
     private static final String UPDATE_CURRENCY_SQL = """
-                    UPDATE currencies 
+                    UPDATE currencies
                     SET code = ?, fullname = ?, sign = ? WHERE id = ?
             """;
 
+    private static final CurrencyDAO INSTANCE = new CurrencyDAO();
+    public static CurrencyDAO getInstance(){
+        return INSTANCE;
+    }
+    private CurrencyDAO() {}
+
     public Optional<CurrencyEntity> getCurrencyById(Integer id) {
-        CurrencyEntity currencyEntity = CurrencyEntity.builder().build();
         try (var connection = ConnectionPool.getConnection();
              var statement = connection.prepareStatement(FIND_BY_ID_SQL)) {
 
