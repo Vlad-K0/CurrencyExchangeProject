@@ -1,0 +1,67 @@
+package org.example.currencyexchangeproject.Servlets;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.example.currencyexchangeproject.Entity.CurrencyEntity;
+import org.example.currencyexchangeproject.Services.CurrencyService;
+
+import java.io.IOException;
+import java.util.List;
+
+@WebServlet("/currencies")
+public class CurrenciesServlet extends HttpServlet {
+    private final CurrencyService currencyService = new CurrencyService();
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
+    }
+
+    @Override
+    protected void doGet(HttpServletRequest req,  HttpServletResponse resp) throws ServletException, IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        try {
+
+            List<CurrencyEntity> currencies = currencyService.getAll();
+
+            if (currencies.isEmpty()) {
+                resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
+                return;
+            }
+
+
+            String jsonResponse = objectMapper.writeValueAsString(currencies);
+
+            resp.setContentType("application/json");
+            resp.setCharacterEncoding("UTF-8");
+            resp.setStatus(HttpServletResponse.SC_OK);
+            resp.getWriter().write(jsonResponse);
+
+        } catch (JsonProcessingException e) {
+            resp.setContentType("application/json");
+            resp.setCharacterEncoding("UTF-8");
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            String errorJson = "{\"error\": \"Ошибка при обработке JSON данных.\"}";
+            resp.getWriter().write(errorJson);
+        } catch (Exception e) {
+            resp.setContentType("application/json");
+            resp.setCharacterEncoding("UTF-8");
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            String errorJson = "{\"error\": \"Произошла непредвиденная ошибка на сервере.\"}";
+            resp.getWriter().write(errorJson);
+        }
+    }
+
+    @Override
+    public void destroy() {
+        super.destroy();
+    }
+}
