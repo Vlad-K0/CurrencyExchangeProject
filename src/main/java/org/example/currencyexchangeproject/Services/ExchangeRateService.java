@@ -4,7 +4,9 @@ import org.example.currencyexchangeproject.DAO.ExchangeRateDAO;
 import org.example.currencyexchangeproject.DTO.ExchangeRateDTO;
 import org.example.currencyexchangeproject.DTO.ExchangeRateFilter;
 import org.example.currencyexchangeproject.DTO.ExchangeRateResponseDTO;
+import org.example.currencyexchangeproject.DTO.ExchangeRateUpdateDTO;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,5 +32,12 @@ public class ExchangeRateService {
         //прописать логику проверки
         Optional<ExchangeRateResponseDTO> savedRate = exchangeRateDAO.createExchangeRate(exchangeRateDTO);
         return savedRate.orElseThrow(() -> new RuntimeException("Не удалось сохранить обменный курс"));
+    }
+
+    public ExchangeRateResponseDTO updateExchangeRate(String code, BigDecimal rate) {
+        ExchangeRateResponseDTO findRate = getExchangeRateByCode(code);
+        ExchangeRateUpdateDTO exchangeRateUpdateDTO = new ExchangeRateUpdateDTO(findRate.getId(), rate);
+        Optional<ExchangeRateResponseDTO> updatedExchangeRate = exchangeRateDAO.updateExchangeRate(exchangeRateUpdateDTO);
+        return updatedExchangeRate.orElseThrow(() -> new RuntimeException("Не удалось сохранить обменный курс"));
     }
 }
