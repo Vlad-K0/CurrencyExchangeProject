@@ -5,6 +5,7 @@ import org.example.currencyexchangeproject.DTO.CurrencyDTO;
 import org.example.currencyexchangeproject.DTO.CurrencyFilter;
 import org.example.currencyexchangeproject.DTO.CurrencyResponseDTO;
 import org.example.currencyexchangeproject.Entity.CurrencyEntity;
+import org.example.currencyexchangeproject.Mappers.CurrencyMapper;
 
 import java.sql.*;
 import java.util.*;
@@ -44,7 +45,7 @@ public class CurrencyDAO {
             ResultSet findCurrency = statement.executeQuery();
 
             if (findCurrency.next()) {
-                return Optional.of(mapRow(findCurrency));
+                return Optional.ofNullable(CurrencyMapper.mapToEntity(findCurrency));
             } else {
                 return Optional.empty();
             }
@@ -62,7 +63,7 @@ public class CurrencyDAO {
             ResultSet resultSet = statement.executeQuery();
 
             while (resultSet.next()) {
-                currencyEntities.add(mapRow(resultSet));
+                currencyEntities.add(CurrencyMapper.mapToEntity(resultSet));
             }
 
             return currencyEntities;
@@ -103,7 +104,7 @@ public class CurrencyDAO {
             }
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
-                currencyEntities.add(mapRow(resultSet));
+                currencyEntities.add(CurrencyMapper.mapToEntity(resultSet));
             }
             return currencyEntities;
 
@@ -124,7 +125,7 @@ public class CurrencyDAO {
             statement.executeUpdate();
             ResultSet resultSet = statement.getGeneratedKeys();
             if (resultSet.next()) {
-                return Optional.of(toResponseDto(mapRow(resultSet)));
+                return Optional.ofNullable(CurrencyMapper.mapToResponseDTO(CurrencyMapper.mapToEntity(resultSet)));
             }else {
                 return Optional.empty();
             }
@@ -151,23 +152,6 @@ public class CurrencyDAO {
         }
     }
 
-    private CurrencyEntity mapRow(ResultSet rs) throws SQLException {
-        return CurrencyEntity.builder()
-                .withId(rs.getInt("id"))
-                .withCode(rs.getString("code"))
-                .withFullName(rs.getString("fullname"))
-                .withSign(rs.getString("sign"))
-                .build();
-    }
-    private static CurrencyResponseDTO toResponseDto(CurrencyEntity entity) {
-        if (entity == null) {
-            return null;
-        }
-        return new CurrencyResponseDTO(
-                entity.getId(),
-                entity.getCode(),
-                entity.getFullName(),
-                entity.getSign()
-        );
-    }
+
+
 }
