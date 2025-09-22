@@ -1,13 +1,12 @@
 package org.example.currencyexchangeproject.DAO;
 
 import org.example.currencyexchangeproject.ConnectionManager.ConnectionPool;
+import org.example.currencyexchangeproject.DTO.CurrencyDTO;
 import org.example.currencyexchangeproject.DTO.CurrencyFilter;
+import org.example.currencyexchangeproject.DTO.CurrencyResponseDTO;
 import org.example.currencyexchangeproject.Entity.CurrencyEntity;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -78,24 +77,28 @@ public class CurrencyDAO {
         List<String> whereSql = new ArrayList<>();
 
         if (filter.getCodeEquals() != null) {
-            whereSql.add("code = ?");
+            whereSql.add("code = ?\n");
             parameters.add(filter.getCodeEquals());
         }
 
         String whereClause = whereSql.stream()
                 .collect(Collectors.joining(" AND ", " WHERE ", ""));
 
+        int limit = filter.getLimit() != null ? filter.getLimit() : Integer.MAX_VALUE;
+
+        int offset = filter.getOffset() != null ? filter.getOffset() : 0;
+
         String sql = FIND_ALL_SQL + whereClause + """
                 LIMIT ?
                 OFFSET ?
                 """;
 
-        parameters.add(filter.getLimit());
-        parameters.add(filter.getOffset());
+        parameters.add(limit);
+        parameters.add(offset);
 
         try (Connection connection = ConnectionPool.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
-            for (int i = 0; i < whereSql.size(); i++) {
+            for (int i = 0; i < parameters.size(); i++) {
                 statement.setObject(i + 1, parameters.get(i));
             }
             ResultSet resultSet = statement.executeQuery();
@@ -110,16 +113,21 @@ public class CurrencyDAO {
 
     }
 
-    public boolean saveCurrency(CurrencyEntity currency) {
+    public Optional<CurrencyResponseDTO> saveCurrency(CurrencyDTO currency) {
         try (var connection = ConnectionPool.getConnection();
-             var statement = connection.prepareStatement(CREATE_CURRENCY_SQL)) {
+             var statement = connection.prepareStatement(CREATE_CURRENCY_SQL, Statement.RETURN_GENERATED_KEYS)) {
 
             statement.setString(1, currency.getCode());
             statement.setString(2, currency.getFullName());
             statement.setString(3, currency.getSign());
 
-            return statement.executeUpdate() == 1;
-
+            statement.executeUpdate();
+            ResultSet resultSet = statement.getGeneratedKeys();
+            if (resultSet.next()) {
+                return Optional.of(toResponseDto(mapRow(resultSet)));
+            }else {
+                return Optional.empty();
+            }
         } catch (SQLException e) {
             System.err.println("Ошибка при сохранении валюты: " + e.getMessage());
             throw new RuntimeException("Не удалось сохранить валюту", e);
@@ -150,5 +158,16 @@ public class CurrencyDAO {
                 .withFullName(rs.getString("fullname"))
                 .withSign(rs.getString("sign"))
                 .build();
+    }
+    private static CurrencyResponseDTO toResponseDto(CurrencyEntity entity) {
+        if (entity == null) {
+            return null;
+        }
+        return new CurrencyResponseDTO(
+                entity.getId(),
+                entity.getCode(),
+                entity.getFullName(),
+                entity.getSign()
+        );
     }
 }
