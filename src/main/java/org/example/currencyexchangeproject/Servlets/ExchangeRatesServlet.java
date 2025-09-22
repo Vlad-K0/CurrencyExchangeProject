@@ -60,9 +60,9 @@ public class ExchangeRatesServlet extends HttpServlet {
             CurrencyResponseDTO baseCurrency = currencyService.getCurrencyByCode(baseCurrencyCode);
             CurrencyResponseDTO targetCurrency = currencyService.getCurrencyByCode(targetCurrencyCode);
 
-            ExchangeRateDTO exchangeRateDTO = new ExchangeRateDTO(baseCurrency, targetCurrency, new BigDecimal(exchangeRate));
+            ExchangeRateDTO exchangeRateSaveDTO = new ExchangeRateDTO(baseCurrency, targetCurrency, new BigDecimal(exchangeRate));
 
-            ExchangeRateResponseDTO exchangeRateResponseDTO = service.saveExchangeRate(exchangeRateDTO);
+            ExchangeRateResponseDTO exchangeRateResponseDTO = service.saveExchangeRate(exchangeRateSaveDTO);
 
             resp.setContentType("application/json");
             resp.setStatus(HttpServletResponse.SC_CREATED);
