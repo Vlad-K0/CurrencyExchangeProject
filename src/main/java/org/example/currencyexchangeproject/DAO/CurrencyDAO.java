@@ -72,8 +72,8 @@ public class CurrencyDAO {
         }
     }
 
-    public List<CurrencyEntity> getAllCurrencies(CurrencyFilter filter) {
-        List<CurrencyEntity> currencyEntities = new ArrayList<>();
+    public List<CurrencyResponseDTO> getAllCurrencies(CurrencyFilter filter) {
+        List<CurrencyResponseDTO> responseDTOList = new ArrayList<>();
         List<Object> parameters = new ArrayList<>();
         List<String> whereSql = new ArrayList<>();
 
@@ -104,9 +104,9 @@ public class CurrencyDAO {
             }
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
-                currencyEntities.add(CurrencyMapper.mapToEntity(resultSet));
+                responseDTOList.add(CurrencyMapper.mapToResponseDTO(CurrencyMapper.mapToEntity(resultSet)));
             }
-            return currencyEntities;
+            return responseDTOList;
 
         } catch (SQLException e) {
             throw new RuntimeException(e);

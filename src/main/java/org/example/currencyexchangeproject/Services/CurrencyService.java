@@ -16,7 +16,7 @@ public class CurrencyService {
         return currencyDAO.getAllCurrencies();
     }
 
-    public CurrencyEntity getCurrencyByCode(String code) {
+    public CurrencyResponseDTO getCurrencyByCode(String code) {
         CurrencyFilter filter = CurrencyFilter.builder()
                 .codeEquals(code).build();
         return currencyDAO.getAllCurrencies(filter).getFirst();

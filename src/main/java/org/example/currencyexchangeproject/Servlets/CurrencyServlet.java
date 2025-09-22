@@ -7,6 +7,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.example.currencyexchangeproject.DTO.CurrencyResponseDTO;
 import org.example.currencyexchangeproject.Entity.CurrencyEntity;
 import org.example.currencyexchangeproject.Services.CurrencyService;
 
@@ -28,7 +29,7 @@ public class CurrencyServlet extends HttpServlet {
         }
         String currencyCode = pathInfo.substring(1).toUpperCase();
         try {
-            CurrencyEntity currency = currencyService.getCurrencyByCode(currencyCode);
+            CurrencyResponseDTO currency = currencyService.getCurrencyByCode(currencyCode);
 
             if (currency == null) {
                 resp.setStatus(HttpServletResponse.SC_NO_CONTENT);

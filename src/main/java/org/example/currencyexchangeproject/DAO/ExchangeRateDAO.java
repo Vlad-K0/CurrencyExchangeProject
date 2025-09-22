@@ -1,9 +1,12 @@
 package org.example.currencyexchangeproject.DAO;
 
 import org.example.currencyexchangeproject.ConnectionManager.ConnectionPool;
+import org.example.currencyexchangeproject.DTO.ExchangeRateDTO;
 import org.example.currencyexchangeproject.DTO.ExchangeRateFilter;
+import org.example.currencyexchangeproject.DTO.ExchangeRateResponseDTO;
 import org.example.currencyexchangeproject.Entity.CurrencyEntity;
 import org.example.currencyexchangeproject.Entity.ExchangeRateEntity;
+import org.example.currencyexchangeproject.Mappers.CurrencyMapper;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -42,13 +45,27 @@ public class ExchangeRateDAO {
                          WHERE id = ?;
             \s""";
 
-    public boolean createExchangeRate(ExchangeRateEntity exchangeRateEntity) {
+    public Optional<ExchangeRateResponseDTO> createExchangeRate(ExchangeRateDTO rateDTO) {
         try (Connection connection = ConnectionPool.getConnection();
-             PreparedStatement statement = connection.prepareStatement(CREATE_EXCHANGE_RATE_SQL)) {
-            statement.setInt(1, exchangeRateEntity.getBaseCurrencyEntity().getId());
-            statement.setInt(2, exchangeRateEntity.getTargetCurrencyEntity().getId());
-            statement.setBigDecimal(3, exchangeRateEntity.getRate());
-            return statement.executeUpdate() == 1;
+             PreparedStatement statement = connection.prepareStatement(CREATE_EXCHANGE_RATE_SQL, Statement.RETURN_GENERATED_KEYS)) {
+
+            statement.setInt(1, rateDTO.getBaseCurrency().getId());
+            statement.setInt(2, rateDTO.getTargetCurrency().getId());
+            statement.setBigDecimal(3, rateDTO.getExchangeRate());
+
+            statement.executeUpdate();
+            ResultSet rs = statement.getGeneratedKeys();
+            if (rs.next()) {
+                ExchangeRateResponseDTO responseDTO = new ExchangeRateResponseDTO(
+                        rs.getInt("id"),
+                        rateDTO.getBaseCurrency(),
+                        rateDTO.getTargetCurrency(),
+                        rateDTO.getExchangeRate()
+                );
+                return Optional.of(responseDTO);
+            } else {
+                return Optional.empty();
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -67,19 +84,19 @@ public class ExchangeRateDAO {
         }
     }
 
-    public List<ExchangeRateEntity> getAllExchnageRates(ExchangeRateFilter filter) {
-        List<ExchangeRateEntity> exchangeRateEntities = new ArrayList<>();
+    public List<ExchangeRateResponseDTO> getAllExchnageRates(ExchangeRateFilter filter) {
+        List<ExchangeRateResponseDTO> exchangeRateResponseDTOList = new ArrayList<>();
         List<Object> parameters = new ArrayList<>();
         List<String> whereSql = new ArrayList<>();
 
 
-        if (filter.getBaseCurrencyEquals() != null) {
-            whereSql.add("BaseCurrencyId = ?");
-            parameters.add(filter.getBaseCurrencyEquals());
+        if (filter.getBaseCurrencyCodeEquals() != null) {
+            whereSql.add("b.code = ?");
+            parameters.add(filter.getBaseCurrencyCodeEquals());
         }
-        if (filter.getTargetCurrencyEquals() != null) {
-            whereSql.add("TargetCurrencyId = ?\n");
-            parameters.add(filter.getTargetCurrencyEquals());
+        if (filter.getTargetCurrencyCodeEquals() != null) {
+            whereSql.add("t.code = ?\n");
+            parameters.add(filter.getTargetCurrencyCodeEquals());
         }
 
         String whereClause = whereSql.stream()
@@ -100,21 +117,21 @@ public class ExchangeRateDAO {
             }
             ResultSet rs = statement.executeQuery();
             while (rs.next()) {
-                exchangeRateEntities.add(mapRow(rs));
+                exchangeRateResponseDTOList.add(toResponseDTO(mapRow(rs)));
             }
-            return exchangeRateEntities;
+            return exchangeRateResponseDTOList;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public List<ExchangeRateEntity> getAllExchangeRates() {
-        List<ExchangeRateEntity> exchangeRateEntities = new ArrayList<>();
+    public List<ExchangeRateResponseDTO> getAllExchangeRates() {
+        List<ExchangeRateResponseDTO> exchangeRateEntities = new ArrayList<>();
         try (Connection connection = ConnectionPool.getConnection();
              PreparedStatement statement = connection.prepareStatement(FIND_ALL_SQL)) {
             ResultSet allExchangeRates = statement.executeQuery();
             while (allExchangeRates.next()) {
-                exchangeRateEntities.add(mapRow(allExchangeRates));
+                exchangeRateEntities.add(toResponseDTO(mapRow(allExchangeRates)));
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -156,5 +173,17 @@ public class ExchangeRateDAO {
                 .Rate(rs.getBigDecimal("rate"))
                 .baseCurrencyEntity(baseCurrencyEntity)
                 .targetCurrencyEntity(targetCurrencyEntity).build();
+    }
+
+    private ExchangeRateResponseDTO toResponseDTO(ExchangeRateEntity entity) {
+        if (entity == null) {
+            return null;
+        }
+        return new ExchangeRateResponseDTO(
+                entity.getId(),
+                CurrencyMapper.mapToResponseDTO(entity.getBaseCurrencyEntity()),
+                CurrencyMapper.mapToResponseDTO(entity.getTargetCurrencyEntity()),
+                entity.getRate()
+        );
     }
 }
