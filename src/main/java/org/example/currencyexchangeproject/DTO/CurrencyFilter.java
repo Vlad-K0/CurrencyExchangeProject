@@ -2,14 +2,16 @@ package org.example.currencyexchangeproject.DTO;
 
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class CurrencyFilter {
-    int offset;
-    int limit;
-    Integer codeEquals;
+    Integer offset;
+    Integer limit;
+    String codeEquals;
 }
