@@ -4,6 +4,7 @@ import org.example.currencyexchangeproject.ConnectionManager.ConnectionPool;
 import org.example.currencyexchangeproject.DTO.ExchangeRateDTO;
 import org.example.currencyexchangeproject.DTO.ExchangeRateFilter;
 import org.example.currencyexchangeproject.DTO.ExchangeRateResponseDTO;
+import org.example.currencyexchangeproject.DTO.ExchangeRateUpdateDTO;
 import org.example.currencyexchangeproject.Entity.CurrencyEntity;
 import org.example.currencyexchangeproject.Entity.ExchangeRateEntity;
 import org.example.currencyexchangeproject.Mappers.CurrencyMapper;
@@ -41,7 +42,7 @@ public class ExchangeRateDAO {
             \s""";
     private static final String UPDATE_EXCHANGE_RATE_SQL = """
                          UPDATE ExchangeRates
-                         SET basecurrencyid = ?, targetcurrencyid = ?, rate = ?\s
+                         SET rate = ?
                          WHERE id = ?;
             \s""";
 
@@ -71,14 +72,21 @@ public class ExchangeRateDAO {
         }
     }
 
-    public boolean updateExchangeRate(ExchangeRateEntity exchangeRateEntity) {
+    public Optional<ExchangeRateResponseDTO> updateExchangeRate(ExchangeRateUpdateDTO updateDTO) {
         try (Connection connection = ConnectionPool.getConnection();
-             PreparedStatement statement = connection.prepareStatement(UPDATE_EXCHANGE_RATE_SQL)) {
-            statement.setInt(1, exchangeRateEntity.getBaseCurrencyEntity().getId());
-            statement.setInt(2, exchangeRateEntity.getTargetCurrencyEntity().getId());
-            statement.setBigDecimal(3, exchangeRateEntity.getRate());
-            statement.setInt(4, exchangeRateEntity.getId());
-            return statement.executeUpdate() == 1;
+             PreparedStatement statement = connection.prepareStatement(UPDATE_EXCHANGE_RATE_SQL, Statement.RETURN_GENERATED_KEYS)) {
+            statement.setBigDecimal(1, updateDTO.getExchangeRate());
+            statement.setInt(2, updateDTO.getId());
+
+            statement.executeUpdate();
+            ResultSet rs = statement.getGeneratedKeys();
+
+            if (rs.next()) {
+                return getExchangeRateById(rs.getInt("id"));
+            }else {
+                return Optional.empty();
+            }
+
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -139,7 +147,7 @@ public class ExchangeRateDAO {
         return exchangeRateEntities;
     }
 
-    public Optional<ExchangeRateEntity> getExchangeRateById(int id) {
+    public Optional<ExchangeRateResponseDTO> getExchangeRateById(int id) {
         try (Connection connection = ConnectionPool.getConnection();
              PreparedStatement statement = connection.prepareStatement(FIND_BY_ID_SQL)) {
 
@@ -147,7 +155,7 @@ public class ExchangeRateDAO {
             ResultSet findExchangeRate = statement.executeQuery();
 
             if (findExchangeRate.next()) {
-                return Optional.of(mapRow(findExchangeRate));
+                return Optional.of(toResponseDTO(mapRow(findExchangeRate)));
             } else {
                 return Optional.empty();
             }
@@ -174,6 +182,8 @@ public class ExchangeRateDAO {
                 .baseCurrencyEntity(baseCurrencyEntity)
                 .targetCurrencyEntity(targetCurrencyEntity).build();
     }
+
+
 
     private ExchangeRateResponseDTO toResponseDTO(ExchangeRateEntity entity) {
         if (entity == null) {
