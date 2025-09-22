@@ -8,6 +8,8 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.example.currencyexchangeproject.DTO.CurrencyDTO;
+import org.example.currencyexchangeproject.DTO.CurrencyResponseDTO;
 import org.example.currencyexchangeproject.Entity.CurrencyEntity;
 import org.example.currencyexchangeproject.Services.CurrencyService;
 
@@ -25,15 +27,15 @@ public class CurrenciesServlet extends HttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest req,  HttpServletResponse resp) throws ServletException, IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
-
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
 
             List<CurrencyEntity> currencies = currencyService.getAll();
 
             if (currencies.isEmpty()) {
                 resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
+                String noContentJson = "\"Валюта не найдена\"";
+                resp.getWriter().write(noContentJson);
                 return;
             }
 
@@ -57,6 +59,23 @@ public class CurrenciesServlet extends HttpServlet {
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             String errorJson = "{\"error\": \"Произошла непредвиденная ошибка на сервере.\"}";
             resp.getWriter().write(errorJson);
+        }
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        try {
+            CurrencyDTO newCurrency = objectMapper.readValue(req.getReader(), CurrencyDTO.class);
+
+            CurrencyResponseDTO savedCurrency = currencyService.saveCurrency(newCurrency);
+
+            resp.setContentType("application/json");
+            resp.setStatus(HttpServletResponse.SC_CREATED); // 201 Created
+            resp.getWriter().write(objectMapper.writeValueAsString(savedCurrency));
+
+        } catch (RuntimeException e) {
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            resp.getWriter().write("{\"error\": \"Произошла ошибка при сохранении валюты.\"}");
         }
     }
 
