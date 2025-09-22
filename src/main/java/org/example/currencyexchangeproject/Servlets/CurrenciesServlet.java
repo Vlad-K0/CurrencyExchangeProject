@@ -65,7 +65,11 @@ public class CurrenciesServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
-            CurrencyDTO newCurrency = objectMapper.readValue(req.getReader(), CurrencyDTO.class);
+            String name = req.getParameter("name");
+            String code = req.getParameter("code");
+            String sign = req.getParameter("sign");
+
+            CurrencyDTO newCurrency = new CurrencyDTO(name, code, sign);
 
             CurrencyResponseDTO savedCurrency = currencyService.saveCurrency(newCurrency);
 
