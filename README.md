@@ -32,7 +32,7 @@
 
 1.  **Склонируйте репозиторий на ваш компьютер:**
     ```bash
-    git clone [https://github.com/Vlad-K0/CurrencyExchangeProject.git](https://github.com/Vlad-K0/CurrencyExchangeProject.git)
+    git clone https://github.com/Vlad-K0/CurrencyExchangeProject.git
     ```
 
 2.  **Перейдите в папку проекта:**
