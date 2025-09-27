@@ -59,7 +59,7 @@ public class ExchangeRateDAO {
             ResultSet rs = statement.getGeneratedKeys();
 
             if (rs.next()) {
-                return ExchangeRateMapper.mapToEntity(rs);
+                return getExchangeRateById(rs.getInt("id"));
             } else {
                 throw new NotFoundDataException("Запись вставлена, но сгенерированный обменный курс не был получен.");
             }
@@ -79,7 +79,7 @@ public class ExchangeRateDAO {
             ResultSet rs = statement.getGeneratedKeys();
 
             if (rs.next()) {
-                return ExchangeRateMapper.mapToEntity(rs);
+                return getExchangeRateById(rs.getInt("id"));
             } else {
                 throw new NotFoundDataException("Запись вставлена, но сгенерированный обменный курс не был получен.");
             }

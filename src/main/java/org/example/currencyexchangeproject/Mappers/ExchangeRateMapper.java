@@ -17,8 +17,8 @@ public class ExchangeRateMapper {
     public static ExchangeRateResponseDTO mapToResponseDTO(ExchangeRateEntity exchangeRateEntity) {
         ExchangeRateResponseDTO responseDTO = new ExchangeRateResponseDTO();
 
-        CurrencyResponseDTO baseCurrencyDTO = responseDTO.getBaseCurrencyEntity();
-        CurrencyResponseDTO targetCurrencyDTO = responseDTO.getTargetCurrencyEntity();
+        CurrencyResponseDTO baseCurrencyDTO = responseDTO.getBaseCurrencyDTO();
+        CurrencyResponseDTO targetCurrencyDTO = responseDTO.getTargetCurrencyDTO();
 
         CurrencyEntity baseCurrencyEntity = exchangeRateEntity.getBaseCurrencyEntity();
         CurrencyEntity targetCurrencyEntity = exchangeRateEntity.getTargetCurrencyEntity();
@@ -34,13 +34,33 @@ public class ExchangeRateMapper {
         targetCurrencyDTO.setSign(targetCurrencyEntity.getSign());
 
         responseDTO.setId(exchangeRateEntity.getId());
-        responseDTO.setBaseCurrencyEntity(baseCurrencyDTO);
-        responseDTO.setTargetCurrencyEntity(targetCurrencyDTO);
+        responseDTO.setBaseCurrencyDTO(baseCurrencyDTO);
+        responseDTO.setTargetCurrencyDTO(targetCurrencyDTO);
         responseDTO.setRate(exchangeRateEntity.getRate());
 
         return responseDTO;
     }
 
+
+    public static ExchangeRateEntity mapToEntity(ExchangeRateResponseDTO exchangeRateDTO) {
+        CurrencyResponseDTO baseCurrency = exchangeRateDTO.getBaseCurrencyDTO();
+        CurrencyResponseDTO targetCurrency = exchangeRateDTO.getTargetCurrencyDTO();
+        CurrencyEntity baseCurrencyEntity = CurrencyEntity.builder()
+                .withId(baseCurrency.getId())
+                .withCode(baseCurrency.getCode())
+                .withFullName(baseCurrency.getName())
+                .withSign(baseCurrency.getSign()).build();
+        CurrencyEntity targetCurrencyEntity = CurrencyEntity.builder()
+                .withId(targetCurrency.getId())
+                .withCode(targetCurrency.getCode())
+                .withFullName(targetCurrency.getName())
+                .withSign(targetCurrency.getSign()).build();
+        return ExchangeRateEntity.builder()
+                .id(exchangeRateDTO.getId())
+                .Rate(exchangeRateDTO.getRate())
+                .baseCurrencyEntity(baseCurrencyEntity)
+                .targetCurrencyEntity(targetCurrencyEntity).build();
+    }
 
     public static ExchangeRateEntity mapToEntity(ExchangeRateDTO exchangeRateDTO) {
         CurrencyResponseDTO baseCurrency = exchangeRateDTO.getBaseCurrency();

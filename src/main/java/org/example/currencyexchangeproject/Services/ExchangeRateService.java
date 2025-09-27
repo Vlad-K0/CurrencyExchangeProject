@@ -55,11 +55,10 @@ public class ExchangeRateService {
 
     public ExchangeRateResponseDTO updateExchangeRate(String code, BigDecimal rate) {
         ExchangeRateResponseDTO findRate = getExchangeRateByCode(code);
+        findRate.setRate(rate);
+        ExchangeRateEntity updatedEntity = ExchangeRateMapper.mapToEntity(findRate);
+        ExchangeRateEntity exchangeRateUpdateDTO = exchangeRateDAO.updateExchangeRate(updatedEntity);
 
-        ExchangeRateUpdateDTO exchangeRateUpdateDTO = new ExchangeRateUpdateDTO(findRate.getId(), rate);
-        ExchangeRateEntity entity = ExchangeRateMapper.mapToEntity(exchangeRateUpdateDTO);
-
-        ExchangeRateEntity updatedExchangeRate = exchangeRateDAO.updateExchangeRate(entity);
-        return ExchangeRateMapper.mapToResponseDTO(updatedExchangeRate);
+        return ExchangeRateMapper.mapToResponseDTO(exchangeRateUpdateDTO);
     }
 }

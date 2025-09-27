@@ -33,10 +33,9 @@ public class CurrencyServlet extends HttpServlet {
         try {
 
             CurrencyResponseDTO currency = currencyService.getCurrencyByCode(currencyCode);
-            String jsonResponse = objectMapper.writeValueAsString(currency);
 
             resp.setStatus(HttpServletResponse.SC_OK);
-            resp.getWriter().write(jsonResponse);
+            objectMapper.writeValue(resp.getOutputStream(), currency);
 
         } catch (ValidationException e) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);

@@ -28,10 +28,10 @@ public class ExchangeRatesServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
             List<ExchangeRateResponseDTO> rates = service.getAllExchangeRates();
-            String jsonResponse = objectMapper.writeValueAsString(rates);
 
             resp.setStatus(HttpServletResponse.SC_OK);
-            resp.getWriter().write(jsonResponse);
+            objectMapper.writeValue(resp.getWriter(), rates);
+
         }catch (NotFoundDataException e){
             resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
             objectMapper.writeValue(resp.getWriter(), e.getMessage());

@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CurrencyResponseDTO {
     Integer id;
-    String code;
     String name;
+    String code;
     String sign;
 }
