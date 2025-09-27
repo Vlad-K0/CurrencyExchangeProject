@@ -1,6 +1,6 @@
 database:
-  url: "jdbc:postgresql://database:5432/currency_exchange"
+  url: "jdbc:postgresql://localhost:5432/postgres"
   user: "postgres"
-  password: "postgres"
+  password: ""
   pool:
     size: 5

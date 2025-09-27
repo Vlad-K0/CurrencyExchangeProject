@@ -99,6 +99,7 @@
             <artifactId>postgresql</artifactId>
             <version>42.7.7</version>
         </dependency>
+
     </dependencies>
 
     <build>
@@ -109,6 +110,15 @@
                 <version>3.14.0</version>
                 <configuration>
                     <release>21</release>
+
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>1.18.40</version>
+                        </path>
+                    </annotationProcessorPaths>
+
                 </configuration>
             </plugin>
             <plugin>

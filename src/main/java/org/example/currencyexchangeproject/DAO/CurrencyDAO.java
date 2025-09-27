@@ -1,10 +1,13 @@
 package org.example.currencyexchangeproject.DAO;
 
 import org.example.currencyexchangeproject.ConnectionManager.ConnectionPool;
-import org.example.currencyexchangeproject.DTO.CurrencyDTO;
+import org.example.currencyexchangeproject.DTO.CurrencyCreateDTO;
+import org.example.currencyexchangeproject.DTO.CurrencyRequestDTO;
 import org.example.currencyexchangeproject.DTO.CurrencyFilter;
 import org.example.currencyexchangeproject.DTO.CurrencyResponseDTO;
 import org.example.currencyexchangeproject.Entity.CurrencyEntity;
+import org.example.currencyexchangeproject.Exceptions.DataAccessException;
+import org.example.currencyexchangeproject.Exceptions.NotFoundDataException;
 import org.example.currencyexchangeproject.Mappers.CurrencyMapper;
 
 import java.sql.*;
@@ -32,10 +35,13 @@ public class CurrencyDAO {
             """;
 
     private static final CurrencyDAO INSTANCE = new CurrencyDAO();
-    public static CurrencyDAO getInstance(){
+
+    public static CurrencyDAO getInstance() {
         return INSTANCE;
     }
-    private CurrencyDAO() {}
+
+    private CurrencyDAO() {
+    }
 
     public Optional<CurrencyEntity> getCurrencyById(Integer id) {
         try (var connection = ConnectionPool.getConnection();
@@ -51,7 +57,8 @@ public class CurrencyDAO {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Не удалось получить валюту", e);
+            System.err.println("Произошла ошибка при доступе к БД: " + e.getMessage());
+            throw new DataAccessException("Ошибка при доступе к данным валюты.", e);
         }
     }
 
@@ -68,12 +75,13 @@ public class CurrencyDAO {
 
             return currencyEntities;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            System.err.println("Произошла ошибка при доступе к БД: " + e.getMessage());
+            throw new DataAccessException("Ошибка при доступе к данным валюты.", e);
         }
     }
 
-    public List<CurrencyResponseDTO> getAllCurrencies(CurrencyFilter filter) {
-        List<CurrencyResponseDTO> responseDTOList = new ArrayList<>();
+    public List<CurrencyEntity> getAllCurrencies(CurrencyFilter filter) {
+        List<CurrencyEntity> entities = new ArrayList<>();
         List<Object> parameters = new ArrayList<>();
         List<String> whereSql = new ArrayList<>();
 
@@ -104,9 +112,9 @@ public class CurrencyDAO {
             }
             ResultSet resultSet = statement.executeQuery();
             while (resultSet.next()) {
-                responseDTOList.add(CurrencyMapper.mapToResponseDTO(CurrencyMapper.mapToEntity(resultSet)));
+                entities.add(CurrencyMapper.mapToEntity(resultSet));
             }
-            return responseDTOList;
+            return entities;
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -114,7 +122,7 @@ public class CurrencyDAO {
 
     }
 
-    public Optional<CurrencyResponseDTO> saveCurrency(CurrencyDTO currency) {
+    public CurrencyEntity saveCurrency(CurrencyEntity currency) {
         try (var connection = ConnectionPool.getConnection();
              var statement = connection.prepareStatement(CREATE_CURRENCY_SQL, Statement.RETURN_GENERATED_KEYS)) {
 
@@ -125,13 +133,13 @@ public class CurrencyDAO {
             statement.executeUpdate();
             ResultSet resultSet = statement.getGeneratedKeys();
             if (resultSet.next()) {
-                return Optional.ofNullable(CurrencyMapper.mapToResponseDTO(CurrencyMapper.mapToEntity(resultSet)));
-            }else {
-                return Optional.empty();
+                return CurrencyMapper.mapToEntity(resultSet);
+            } else {
+                throw new NotFoundDataException("Ошибка получения обновленной валюты");
             }
         } catch (SQLException e) {
             System.err.println("Ошибка при сохранении валюты: " + e.getMessage());
-            throw new RuntimeException("Не удалось сохранить валюту", e);
+            throw new DataAccessException("Не удалось сохранить валюту", e);
         }
     }
 
