@@ -38,32 +38,26 @@ public class CurrenciesServlet extends HttpServlet {
             List<CurrencyEntity> currencies = currencyService.getAll();
 
             if (currencies.isEmpty()) {
-                resp.setStatus(HttpServletResponse.SC_NO_CONTENT);
-                String noContentJson = "\"Валюта не найдена\"";
-                resp.getWriter().write(noContentJson);
-                return;
+                throw new NotFoundDataException("No currencies found");
             }
-
 
             String jsonResponse = objectMapper.writeValueAsString(currencies);
 
-            resp.setContentType("application/json");
-            resp.setCharacterEncoding("UTF-8");
             resp.setStatus(HttpServletResponse.SC_OK);
             resp.getWriter().write(jsonResponse);
 
         } catch (JsonProcessingException e) {
-            resp.setContentType("application/json");
-            resp.setCharacterEncoding("UTF-8");
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            String errorJson = "{\"error\": \"Ошибка при обработке JSON данных.\"}";
-            resp.getWriter().write(errorJson);
+            objectMapper.writeValue(resp.getWriter(), new ErrorMessage(e.getMessage()));
+        } catch (NotFoundDataException e) {
+            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            objectMapper.writeValue(resp.getWriter(), new ErrorMessage(e.getMessage()));
+        } catch (DataAccessException e) {
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            objectMapper.writeValue(resp.getWriter(), new ErrorMessage(e.getMessage()));
         } catch (Exception e) {
-            resp.setContentType("application/json");
-            resp.setCharacterEncoding("UTF-8");
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            String errorJson = "{\"error\": \"Произошла непредвиденная ошибка на сервере.\"}";
-            resp.getWriter().write(errorJson);
+            objectMapper.writeValue(resp.getWriter(), new ErrorMessage(e.getMessage()));
         }
     }
 
@@ -74,17 +68,25 @@ public class CurrenciesServlet extends HttpServlet {
             String code = req.getParameter("code");
             String sign = req.getParameter("sign");
 
-            CurrencyDTO newCurrency = new CurrencyDTO(name, code, sign);
+            CurrencyCreateDTO newCurrency = new CurrencyCreateDTO(name, code, sign);
 
             CurrencyResponseDTO savedCurrency = currencyService.saveCurrency(newCurrency);
 
-            resp.setContentType("application/json");
-            resp.setStatus(HttpServletResponse.SC_CREATED); // 201 Created
+            resp.setStatus(HttpServletResponse.SC_CREATED);
             resp.getWriter().write(objectMapper.writeValueAsString(savedCurrency));
 
+        } catch (ValidationException e) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            objectMapper.writeValue(resp.getWriter(), new ErrorMessage(e.getMessage()));
+        } catch (NotFoundDataException e) {
+            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            objectMapper.writeValue(resp.getWriter(), new ErrorMessage(e.getMessage()));
+        } catch (DataAccessException e) {
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            objectMapper.writeValue(resp.getWriter(), new ErrorMessage(e.getMessage()));
         } catch (RuntimeException e) {
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            resp.getWriter().write("{\"error\": \"Произошла ошибка при сохранении валюты.\"}");
+            objectMapper.writeValue(resp.getWriter(), new ErrorMessage(e.getMessage()));
         }
     }
 
