@@ -4,8 +4,8 @@ import java.util.Objects;
 
 public class CurrencyEntity {
     Integer id;
+    String name;
     String code;
-    String FullName;
     String Sign;
 
     private CurrencyEntity() {}
@@ -27,7 +27,7 @@ public class CurrencyEntity {
         return "Currency{" +
                "id=" + id +
                ", code='" + code + '\'' +
-               ", FullName='" + FullName + '\'' +
+               ", FullName='" + name + '\'' +
                ", Sign='" + Sign + '\'' +
                '}';
     }
@@ -60,12 +60,12 @@ public class CurrencyEntity {
         this.code = code;
     }
 
-    public String getFullName() {
-        return FullName;
+    public String getName() {
+        return name;
     }
 
-    public void setFullName(String fullName) {
-        FullName = fullName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getSign() {
@@ -93,7 +93,7 @@ public class CurrencyEntity {
 
         @Override
         public CurrencyBuilder withFullName(String fullName) {
-            currencyEntity.FullName = fullName;
+            currencyEntity.name = fullName;
             return this;
         }
 

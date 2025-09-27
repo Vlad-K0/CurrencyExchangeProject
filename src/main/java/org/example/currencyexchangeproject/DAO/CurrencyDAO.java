@@ -1,10 +1,7 @@
 package org.example.currencyexchangeproject.DAO;
 
 import org.example.currencyexchangeproject.ConnectionManager.ConnectionPool;
-import org.example.currencyexchangeproject.DTO.CurrencyCreateDTO;
-import org.example.currencyexchangeproject.DTO.CurrencyRequestDTO;
 import org.example.currencyexchangeproject.DTO.CurrencyFilter;
-import org.example.currencyexchangeproject.DTO.CurrencyResponseDTO;
 import org.example.currencyexchangeproject.Entity.CurrencyEntity;
 import org.example.currencyexchangeproject.Exceptions.DataAccessException;
 import org.example.currencyexchangeproject.Exceptions.NotFoundDataException;
@@ -127,7 +124,7 @@ public class CurrencyDAO {
              var statement = connection.prepareStatement(CREATE_CURRENCY_SQL, Statement.RETURN_GENERATED_KEYS)) {
 
             statement.setString(1, currency.getCode());
-            statement.setString(2, currency.getFullName());
+            statement.setString(2, currency.getName());
             statement.setString(3, currency.getSign());
 
             statement.executeUpdate();
@@ -148,7 +145,7 @@ public class CurrencyDAO {
              var statement = connection.prepareStatement(UPDATE_CURRENCY_SQL, Statement.RETURN_GENERATED_KEYS)) {
 
             statement.setString(1, currency.getCode());
-            statement.setString(2, currency.getFullName());
+            statement.setString(2, currency.getName());
             statement.setString(3, currency.getSign());
             statement.setInt(4, currency.getId());
 

@@ -65,7 +65,7 @@ public class CurrenciesServlet extends HttpServlet {
             String code = req.getParameter("code");
             String sign = req.getParameter("sign");
 
-            CurrencyCreateDTO newCurrency = new CurrencyCreateDTO(name, code, sign);
+            CurrencyCreateDTO newCurrency = new CurrencyCreateDTO(code, name, sign);
 
             CurrencyResponseDTO savedCurrency = currencyService.saveCurrency(newCurrency);
 

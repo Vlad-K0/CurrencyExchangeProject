@@ -11,6 +11,7 @@ import org.example.currencyexchangeproject.Mappers.ExchangeRateMapper;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class ExchangeRateService {
     private static final ExchangeRateDAO exchangeRateDAO = new ExchangeRateDAO();
@@ -27,7 +28,7 @@ public class ExchangeRateService {
         return responseDTOList;
     }
 
-    public ExchangeRateResponseDTO getExchangeRateByCode(String code) {
+    public Optional<ExchangeRateResponseDTO> getExchangeRateByCode(String code) {
         String baseCurrencyCode = code.substring(0, 3);
         String targetCurrencyCode = code.substring(3, 6);
         ExchangeRateFilter filterByCode = ExchangeRateFilter.builder()
@@ -40,9 +41,11 @@ public class ExchangeRateService {
         for (ExchangeRateEntity entity : exchangeRateResponseDTO) {
             responseDTOList.add(ExchangeRateMapper.mapToResponseDTO(entity));
         }
-        if (responseDTOList.isEmpty()) throw new NotFoundDataException("No exchange rates found");
+        if (responseDTOList.isEmpty()) {
+            return Optional.empty();
+        }
 
-        return responseDTOList.getFirst();
+        return Optional.of(responseDTOList.getFirst());
     }
 
     public ExchangeRateResponseDTO saveExchangeRate(ExchangeRateDTO exchangeRateDTO) {
@@ -52,7 +55,7 @@ public class ExchangeRateService {
     }
 
     public ExchangeRateResponseDTO updateExchangeRate(String code, BigDecimal rate) {
-        ExchangeRateResponseDTO findRate = getExchangeRateByCode(code);
+        ExchangeRateResponseDTO findRate = getExchangeRateByCode(code).orElseThrow(() -> new NotFoundDataException("Обменный курс не найден"));
         findRate.setRate(rate);
         ExchangeRateEntity updatedEntity = ExchangeRateMapper.mapToEntity(findRate);
         ExchangeRateEntity exchangeRateUpdateDTO = exchangeRateDAO.updateExchangeRate(updatedEntity);

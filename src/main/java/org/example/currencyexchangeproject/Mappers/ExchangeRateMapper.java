@@ -25,12 +25,12 @@ public class ExchangeRateMapper {
 
         baseCurrencyDTO.setId(baseCurrencyEntity.getId());
         baseCurrencyDTO.setCode(baseCurrencyEntity.getCode());
-        baseCurrencyDTO.setName(baseCurrencyEntity.getFullName());
+        baseCurrencyDTO.setName(baseCurrencyEntity.getName());
         baseCurrencyDTO.setSign(baseCurrencyEntity.getSign());
 
         targetCurrencyDTO.setId(targetCurrencyEntity.getId());
         targetCurrencyDTO.setCode(targetCurrencyEntity.getCode());
-        targetCurrencyDTO.setName(targetCurrencyEntity.getFullName());
+        targetCurrencyDTO.setName(targetCurrencyEntity.getName());
         targetCurrencyDTO.setSign(targetCurrencyEntity.getSign());
 
         responseDTO.setId(exchangeRateEntity.getId());

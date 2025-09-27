@@ -38,7 +38,7 @@ public class CurrencyMapper {
     public static CurrencyEntity mapToEntity(CurrencyCreateDTO currencyCreateDTO) {
         return CurrencyEntity.builder()
                 .withCode(currencyCreateDTO.getCode())
-                .withFullName(currencyCreateDTO.getFullName())
+                .withFullName(currencyCreateDTO.getName())
                 .withSign(currencyCreateDTO.getSign())
                 .build();
     }
@@ -49,8 +49,8 @@ public class CurrencyMapper {
         }
         return new CurrencyResponseDTO(
                 entity.getId(),
+                entity.getName(),
                 entity.getCode(),
-                entity.getFullName(),
                 entity.getSign()
         );
     }

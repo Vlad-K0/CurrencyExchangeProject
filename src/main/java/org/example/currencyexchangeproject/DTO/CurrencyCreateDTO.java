@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CurrencyCreateDTO {
     private String code;
-    private String fullName;
+    private String name;
     private String sign;
 }

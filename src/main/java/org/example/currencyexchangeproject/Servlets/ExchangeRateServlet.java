@@ -14,12 +14,14 @@ import org.example.currencyexchangeproject.Services.ExchangeRateService;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @WebServlet("/exchangeRate/*")
 public class ExchangeRateServlet extends HttpServlet {
     private static final ExchangeRateService service = new ExchangeRateService();
     private static final ObjectMapper objectMapper = new ObjectMapper();
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String pathInfo = req.getPathInfo();
@@ -30,7 +32,8 @@ public class ExchangeRateServlet extends HttpServlet {
         String exchangeRateString = pathInfo.substring(1).toUpperCase();
 
         try {
-            ExchangeRateResponseDTO rateDTO = service.getExchangeRateByCode(exchangeRateString);
+            Optional<ExchangeRateResponseDTO> rateDTO = service.getExchangeRateByCode(exchangeRateString);
+            rateDTO.orElseThrow(() -> new NotFoundDataException("Exchange Rate for " + exchangeRateString + "not found"));
 
             resp.setStatus(HttpServletResponse.SC_OK);
             String jsonResponse = objectMapper.writeValueAsString(rateDTO);
