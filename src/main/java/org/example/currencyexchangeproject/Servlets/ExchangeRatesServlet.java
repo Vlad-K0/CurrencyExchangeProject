@@ -37,13 +37,10 @@ public class ExchangeRatesServlet extends HttpServlet {
             }
 
             String jsonResponse = objectMapper.writeValueAsString(rates);
-            resp.setContentType("application/json");
-            resp.setCharacterEncoding("UTF-8");
+
             resp.setStatus(HttpServletResponse.SC_OK);
             resp.getWriter().write(jsonResponse);
         }catch (Exception e){
-            resp.setContentType("application/json");
-            resp.setCharacterEncoding("UTF-8");
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             String errorJson = "{\"error\": \"Произошла непредвиденная ошибка на сервере.\"}";
             resp.getWriter().write(errorJson);
