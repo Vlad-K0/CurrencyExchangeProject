@@ -135,23 +135,28 @@ public class CurrencyDAO {
         }
     }
 
-    public boolean updateCurrency(CurrencyEntity currency) {
+    public CurrencyEntity updateCurrency(CurrencyEntity currency) {
         try (var connection = ConnectionPool.getConnection();
-             var statement = connection.prepareStatement(UPDATE_CURRENCY_SQL)) {
+             var statement = connection.prepareStatement(UPDATE_CURRENCY_SQL, Statement.RETURN_GENERATED_KEYS)) {
 
             statement.setString(1, currency.getCode());
             statement.setString(2, currency.getFullName());
             statement.setString(3, currency.getSign());
             statement.setInt(4, currency.getId());
 
-            return statement.executeUpdate() == 1;
 
+            statement.executeUpdate();
+            ResultSet resultSet = statement.getGeneratedKeys();
+            if (resultSet.next()) {
+                return CurrencyMapper.mapToEntity(resultSet);
+            } else {
+                throw new NotFoundDataException("Ошибка получения обновленной валюты");
+            }
         } catch (SQLException e) {
-            System.err.println("Ошибка при сохранении валюты: " + e.getMessage());
-            throw new RuntimeException("Не удалось сохранить валюту", e);
+            System.err.println("Произошла ошибка при доступе к БД: " + e.getMessage());
+            throw new DataAccessException("Ошибка при доступе к данным валюты.", e);
         }
     }
-
 
 
 }

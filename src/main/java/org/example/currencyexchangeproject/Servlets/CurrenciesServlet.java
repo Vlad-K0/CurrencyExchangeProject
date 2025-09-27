@@ -8,9 +8,14 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.example.currencyexchangeproject.DTO.CurrencyDTO;
+import org.example.currencyexchangeproject.DTO.CurrencyCreateDTO;
 import org.example.currencyexchangeproject.DTO.CurrencyResponseDTO;
+import org.example.currencyexchangeproject.DTO.UpdateCurrencyDTO;
 import org.example.currencyexchangeproject.Entity.CurrencyEntity;
+import org.example.currencyexchangeproject.Exceptions.DataAccessException;
+import org.example.currencyexchangeproject.Exceptions.Message.ErrorMessage;
+import org.example.currencyexchangeproject.Exceptions.NotFoundDataException;
+import org.example.currencyexchangeproject.Exceptions.ValidationException;
 import org.example.currencyexchangeproject.Services.CurrencyService;
 
 import java.io.IOException;
@@ -80,6 +85,32 @@ public class CurrenciesServlet extends HttpServlet {
         } catch (RuntimeException e) {
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             resp.getWriter().write("{\"error\": \"Произошла ошибка при сохранении валюты.\"}");
+        }
+    }
+
+    @Override
+    protected void doPatch(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        try {
+            UpdateCurrencyDTO newCurrency = objectMapper.readValue(req.getInputStream(), UpdateCurrencyDTO.class);
+
+            CurrencyResponseDTO updateCurrency = currencyService.updateCurrency(newCurrency);
+
+            resp.setStatus(HttpServletResponse.SC_OK);
+            String jsonResponse = objectMapper.writeValueAsString(updateCurrency);
+            resp.getWriter().write(jsonResponse);
+
+        } catch (ValidationException e) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            objectMapper.writeValue(resp.getWriter(), new ErrorMessage(e.getMessage()));
+        } catch (DataAccessException e) {
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            objectMapper.writeValue(resp.getWriter(), new ErrorMessage(e.getMessage()));
+        } catch (NotFoundDataException e) {
+            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            objectMapper.writeValue(resp.getWriter(), new ErrorMessage(e.getMessage()));
+        } catch (Exception e) {
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            objectMapper.writeValue(resp.getWriter(), new ErrorMessage(e.getMessage()));
         }
     }
 

@@ -1,5 +1,6 @@
 package org.example.currencyexchangeproject.Mappers;
 
+import org.example.currencyexchangeproject.DTO.CurrencyCreateDTO;
 import org.example.currencyexchangeproject.DTO.CurrencyResponseDTO;
 import org.example.currencyexchangeproject.Entity.CurrencyEntity;
 
@@ -14,12 +15,31 @@ public class CurrencyMapper {
     private CurrencyMapper() {
     }
 
+
+
     public static CurrencyEntity mapToEntity(ResultSet rs) throws SQLException {
         return CurrencyEntity.builder()
                 .withId(rs.getInt("id"))
                 .withCode(rs.getString("code"))
                 .withFullName(rs.getString("fullname"))
                 .withSign(rs.getString("sign"))
+                .build();
+    }
+
+    public static CurrencyEntity mapToEntity(CurrencyResponseDTO currencyResponseDTO) {
+        return CurrencyEntity.builder()
+                .withId(currencyResponseDTO.getId())
+                .withCode(currencyResponseDTO.getCode())
+                .withFullName(currencyResponseDTO.getName())
+                .withSign(currencyResponseDTO.getSign())
+                .build();
+    }
+
+    public static CurrencyEntity mapToEntity(CurrencyCreateDTO currencyCreateDTO) {
+        return CurrencyEntity.builder()
+                .withCode(currencyCreateDTO.getCode())
+                .withFullName(currencyCreateDTO.getFullName())
+                .withSign(currencyCreateDTO.getSign())
                 .build();
     }
 
