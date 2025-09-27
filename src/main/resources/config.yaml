@@ -1,6 +1,6 @@
 database:
-  url: "jdbc:postgresql://localhost:5432/postgres"
-  user: "postgres"
-  password: ""
+  url: "jdbc:postgresql://localhost:5432/currency_db"
+  user: "currency_user"
+  password: "123"
   pool:
-    size: 5
+    size: 10
