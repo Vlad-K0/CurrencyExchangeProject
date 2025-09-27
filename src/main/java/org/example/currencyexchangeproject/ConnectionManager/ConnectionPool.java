@@ -34,7 +34,12 @@ public class ConnectionPool {
             Connection connection = open();
             pool.add(connection);
             Connection proxyConnection = (Connection) Proxy.newProxyInstance(ConnectionPool.class.getClassLoader(), new Class[]{Connection.class},
-                    (proxy, method, args) -> method.getName().equals("close") ? proxyPool.add(connection) : method.invoke(connection, args));
+                    (proxy, method, args) -> {
+                        if (method.getName().equals("close")) {
+                            return proxyPool.add((Connection) proxy); // Возвращаем в пул сам прокси-объект
+                        }
+                        return method.invoke(connection, args);
+                    });
             proxyPool.add(proxyConnection);
         }
     }
