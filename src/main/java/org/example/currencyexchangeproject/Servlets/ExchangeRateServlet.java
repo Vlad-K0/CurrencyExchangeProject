@@ -10,7 +10,6 @@ import org.example.currencyexchangeproject.DTO.ExchangeRateResponseDTO;
 import org.example.currencyexchangeproject.Exceptions.Message.ErrorMessage;
 import org.example.currencyexchangeproject.Exceptions.NotFoundDataException;
 import org.example.currencyexchangeproject.Exceptions.ValidationException;
-import org.example.currencyexchangeproject.Services.CurrencyService;
 import org.example.currencyexchangeproject.Services.ExchangeRateService;
 
 import java.io.IOException;
@@ -21,8 +20,6 @@ import java.util.stream.Collectors;
 public class ExchangeRateServlet extends HttpServlet {
     private static final ExchangeRateService service = new ExchangeRateService();
     private static final ObjectMapper objectMapper = new ObjectMapper();
-    private static final CurrencyService currencyService = new CurrencyService();
-
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String pathInfo = req.getPathInfo();
@@ -68,25 +65,20 @@ public class ExchangeRateServlet extends HttpServlet {
         String exchangeRateString = pathInfo.substring(1).toUpperCase();
         try {
             ExchangeRateResponseDTO rateDTO = service.updateExchangeRate(exchangeRateString, new BigDecimal(rate));
-            if (rateDTO == null) {
-                resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            }
 
             String jsonResponse = objectMapper.writeValueAsString(rateDTO);
 
-            resp.setContentType("application/json");
-            resp.setCharacterEncoding("UTF-8");
             resp.setStatus(HttpServletResponse.SC_OK);
             resp.getWriter().write(jsonResponse);
         } catch (ValidationException e) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             objectMapper.writeValue(resp.getWriter(), new ErrorMessage(e.getMessage()));
+        } catch (NotFoundDataException e) {
+            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            objectMapper.writeValue(resp.getWriter(), new ErrorMessage(e.getMessage()));
         } catch (Exception e) {
-            resp.setContentType("application/json");
-            resp.setCharacterEncoding("UTF-8");
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            String errorJson = "{\"error\": \"Произошла непредвиденная ошибка на сервере.\"}";
-            resp.getWriter().write(errorJson);
+            objectMapper.writeValue(resp.getWriter(), new ErrorMessage(e.getMessage()));
         }
     }
 }
