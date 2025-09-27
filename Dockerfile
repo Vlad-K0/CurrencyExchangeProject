@@ -1,15 +1,21 @@
-# Используем официальный образ Tomcat
-FROM tomcat:9.0-jdk17-openjdk-slim
+# --- Этап 1: Сборка .war файла с помощью Maven и JDK 21 (LTS) ---
+FROM maven:3.9-eclipse-temurin-21 AS builder
 
-# Копируем собранный WAR-файл в папку webapps Tomcat
-# Убедись, что твой проект собран командой 'mvn clean package'
-# И что имя файла совпадает с именем твоего артефакта
-COPY target/CurrencyExchangeProject-1.0-SNAPSHOT.war /usr/local/tomcat/webapps/
+WORKDIR /app
+COPY pom.xml .
+RUN mvn dependency:go-offline
+COPY src ./src
+RUN mvn package -DskipTests
 
-# Настройка переменных окружения для подключения к базе данных
-ENV DB_URL=jdbc:postgresql://database:5432/currency_exchange
-ENV DB_USER=postgres
-ENV DB_PASSWORD=postgres
+# --- Этап 2: Финальный образ на базе Tomcat 11 и JDK 21 (LTS) ---
+# Эта комбинация существует и является стабильной
+FROM tomcat:11.0-jdk21-temurin
 
-# Запускаем Tomcat
-CMD ["catalina.sh", "run"]
+# Очищаем папку webapps от стандартных приложений
+RUN rm -rf /usr/local/tomcat/webapps/*
+
+# Копируем наш .war файл в папку приложений Tomcat
+COPY --from=builder /app/target/*.war /usr/local/tomcat/webapps/ROOT.war
+
+EXPOSE 8080
+
