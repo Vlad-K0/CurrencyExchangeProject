@@ -17,8 +17,8 @@ public class ExchangeRateMapper {
     public static ExchangeRateResponseDTO mapToResponseDTO(ExchangeRateEntity exchangeRateEntity) {
         ExchangeRateResponseDTO responseDTO = new ExchangeRateResponseDTO();
 
-        CurrencyResponseDTO baseCurrencyDTO = responseDTO.getBaseCurrencyDTO();
-        CurrencyResponseDTO targetCurrencyDTO = responseDTO.getTargetCurrencyDTO();
+        CurrencyResponseDTO baseCurrencyDTO = responseDTO.getBaseCurrency();
+        CurrencyResponseDTO targetCurrencyDTO = responseDTO.getTargetCurrency();
 
         CurrencyEntity baseCurrencyEntity = exchangeRateEntity.getBaseCurrencyEntity();
         CurrencyEntity targetCurrencyEntity = exchangeRateEntity.getTargetCurrencyEntity();
@@ -34,8 +34,8 @@ public class ExchangeRateMapper {
         targetCurrencyDTO.setSign(targetCurrencyEntity.getSign());
 
         responseDTO.setId(exchangeRateEntity.getId());
-        responseDTO.setBaseCurrencyDTO(baseCurrencyDTO);
-        responseDTO.setTargetCurrencyDTO(targetCurrencyDTO);
+        responseDTO.setBaseCurrency(baseCurrencyDTO);
+        responseDTO.setTargetCurrency(targetCurrencyDTO);
         responseDTO.setRate(exchangeRateEntity.getRate());
 
         return responseDTO;
@@ -43,8 +43,8 @@ public class ExchangeRateMapper {
 
 
     public static ExchangeRateEntity mapToEntity(ExchangeRateResponseDTO exchangeRateDTO) {
-        CurrencyResponseDTO baseCurrency = exchangeRateDTO.getBaseCurrencyDTO();
-        CurrencyResponseDTO targetCurrency = exchangeRateDTO.getTargetCurrencyDTO();
+        CurrencyResponseDTO baseCurrency = exchangeRateDTO.getBaseCurrency();
+        CurrencyResponseDTO targetCurrency = exchangeRateDTO.getTargetCurrency();
         CurrencyEntity baseCurrencyEntity = CurrencyEntity.builder()
                 .withId(baseCurrency.getId())
                 .withCode(baseCurrency.getCode())

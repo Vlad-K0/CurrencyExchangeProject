@@ -35,16 +35,13 @@ public class CurrenciesServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
 
-            List<CurrencyEntity> currencies = currencyService.getAll();
+            List<CurrencyResponseDTO> currencies = currencyService.getAll();
 
             if (currencies.isEmpty()) {
                 throw new NotFoundDataException("No currencies found");
             }
-
-            String jsonResponse = objectMapper.writeValueAsString(currencies);
-
             resp.setStatus(HttpServletResponse.SC_OK);
-            resp.getWriter().write(jsonResponse);
+            objectMapper.writeValue(resp.getOutputStream(), currencies);
 
         } catch (JsonProcessingException e) {
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);

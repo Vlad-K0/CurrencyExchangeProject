@@ -10,12 +10,12 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class ExchangeRateResponseDTO {
     Integer id;
-    CurrencyResponseDTO baseCurrencyDTO;
-    CurrencyResponseDTO targetCurrencyDTO;
-    BigDecimal Rate;
+    CurrencyResponseDTO baseCurrency;
+    CurrencyResponseDTO targetCurrency;
+    BigDecimal rate;
 
     public ExchangeRateResponseDTO() {
-        baseCurrencyDTO = new CurrencyResponseDTO();
-        targetCurrencyDTO = new CurrencyResponseDTO();
+        baseCurrency = new CurrencyResponseDTO();
+        targetCurrency = new CurrencyResponseDTO();
     }
 }

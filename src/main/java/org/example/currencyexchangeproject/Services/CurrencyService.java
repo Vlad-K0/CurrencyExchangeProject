@@ -14,8 +14,15 @@ import java.util.Optional;
 public class CurrencyService {
     private final CurrencyDAO currencyDAO = CurrencyDAO.getInstance();
 
-    public List<CurrencyEntity> getAll() {
-        return currencyDAO.getAllCurrencies();
+    public List<CurrencyResponseDTO> getAll() {
+        List<CurrencyEntity> currencyEntities = currencyDAO.getAllCurrencies();
+        if (currencyEntities.isEmpty())
+            throw new NotFoundDataException("No currencies found");
+        List<CurrencyResponseDTO> currencies = new ArrayList<>();
+        for (CurrencyEntity currencyEntity : currencyEntities) {
+            currencies.add(CurrencyMapper.mapToResponseDTO(currencyEntity));
+        }
+        return currencies;
     }
 
     public CurrencyResponseDTO updateCurrency(UpdateCurrencyDTO updateCurrencyDTO) {

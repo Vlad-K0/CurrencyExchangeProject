@@ -4,7 +4,6 @@ import org.example.currencyexchangeproject.DAO.ExchangeRateDAO;
 import org.example.currencyexchangeproject.DTO.ExchangeRateDTO;
 import org.example.currencyexchangeproject.DTO.ExchangeRateFilter;
 import org.example.currencyexchangeproject.DTO.ExchangeRateResponseDTO;
-import org.example.currencyexchangeproject.DTO.ExchangeRateUpdateDTO;
 import org.example.currencyexchangeproject.Entity.ExchangeRateEntity;
 import org.example.currencyexchangeproject.Exceptions.NotFoundDataException;
 import org.example.currencyexchangeproject.Mappers.ExchangeRateMapper;
@@ -12,7 +11,6 @@ import org.example.currencyexchangeproject.Mappers.ExchangeRateMapper;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class ExchangeRateService {
     private static final ExchangeRateDAO exchangeRateDAO = new ExchangeRateDAO();
